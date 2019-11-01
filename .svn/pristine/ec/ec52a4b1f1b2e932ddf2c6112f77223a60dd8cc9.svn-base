@@ -1,0 +1,93 @@
+package cvc.framework.service;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import cvc.framework.result.FileRestMessage;
+import cvc.framework.result.RestResult;
+import cvc.framework.utils.ExcelUtil;
+import cvc.framework.utils.FileUtil;
+import cvc.framework.utils.GuidUtil;
+import cvc.framework.utils.excel.ExcelRow;
+
+@Service
+public class UploadService 
+{
+
+	//@Value("${spring.upload.path}")
+	@Autowired
+	private Environment env;
+		
+ 
+		
+	public RestResult Upload(MultipartFile file,HttpServletRequest request)
+	{
+		RestResult result=new RestResult();
+		
+		String location=env.getProperty("spring.upload.path");
+		String type=env.getProperty("spring.upload.type");
+		//上传路径
+        String path = request.getSession().getServletContext().getRealPath(location);
+        if(type.equals("0"))
+        	path= location;
+        else
+        	path=  request.getSession().getServletContext().getRealPath(location);
+        
+        try
+        {
+        	FileUtil.createDir(path);
+        	
+            //获取上传文件名
+            String fileName = file.getOriginalFilename();
+            
+            String saveName=GuidUtil.NewGUID()+FileUtil.getFileExtension(fileName);
+            File dirFile = new File(path, saveName);
+            if(!dirFile.exists())
+            {
+                dirFile.createNewFile();
+            }
+            //MultipartFile自带的解析方法，transferTo（File file）方法其实是封装了下面的这些代码，我习惯自己写缓存输入输出流来处理
+            //file.transferTo(dirFile);
+            
+            InputStream input = file.getInputStream();
+            FileOutputStream output = new FileOutputStream(dirFile);
+            byte[] bt = new byte[input.available()];
+            int len = 0;
+            while((len = input.read(bt)) != -1) 
+            {
+                output.write(bt, 0, len);
+            }
+            input.close();
+            output.flush();
+            output.close();
+            
+            FileRestMessage message=new FileRestMessage();
+            message.sourceName=fileName;
+            message.descName=saveName;
+            result.state=0;
+            result.message=message;
+        }
+        catch(Exception e)
+        {
+	         result.state=1;
+	         result.error=e.getMessage();
+        }
+		return result;
+	}
+	
+	 
+	
+	
+	
+}

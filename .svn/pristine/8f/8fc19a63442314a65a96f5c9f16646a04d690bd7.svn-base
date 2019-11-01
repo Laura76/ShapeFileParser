@@ -1,0 +1,48 @@
+package cvc.framework.utils;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DateUtil {
+
+	public static String getNowString(String format)
+	{
+		
+		Date d = new Date();
+		if(StringUtil.IsNullOrEmpty(format))
+		{
+			format="yyyy-MM-dd HH:mm:ss";		//yyyy-MM-dd HH:mm:ss
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		 
+		String s=sdf.format(d);
+		return s;
+	}
+	
+	public static String getString(Date d,String format)
+	{
+		if(StringUtil.IsNullOrEmpty(format))
+		{
+			format="yyyy-MM-dd HH:mm:ss";		//yyyy-MM-dd HH:mm:ss
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		String s=sdf.format(d);
+		return s;
+	}
+	
+	
+	public static Date getDate(String date,String format)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		Date d;
+		try {
+			d = sdf.parse(date);
+		} catch (ParseException e) 
+		{
+			d=new Date();
+		}
+		return d;
+	}
+	
+}

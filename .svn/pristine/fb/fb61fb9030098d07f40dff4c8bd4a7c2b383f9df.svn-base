@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<meta name="renderer" content="webkit">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  	<link rel="stylesheet" href="./layui/css/layui.css"  media="all">
+	<script src="./layui/layui.js" charset="utf-8"></script> 
+ 
+ </head>
+<body>
+
+<canvas width="500" height="500" id="myCanvas" style="position: absolute;margin: auto;left: 0px;top: 0px;right: 0px;bottom: 0px;"></canvas>
+
+
+ 
+<!-- 
+ <div class="layui-row">
+    <div class="layui-col-xs2">
+		<input type="text" id="keeperid" name="title" lay-verify="title" autocomplete="off" placeholder="请输入巡检员编号" class="layui-input">    
+	</div>
+    <div class="layui-col-xs2">
+	    <input type="text" class="layui-input" id="keeperday" placeholder="yyyy-MM-dd">
+    </div>
+    <div class="layui-col-xs8">
+		 <button type="button" class="layui-btn layui-btn-primary" onclick="return Querykeeper()">查询</button>
+    </div>
+  </div>
+   <div class="layui-row">
+		<input type="text" id="keeperinfo" name="title" lay-verify="title" autocomplete="off" placeholder="" class="layui-input">    
+   </div>
+ --> 
+  
+   
+	 
+
+
+	<script>
+	
+	
+ 	var data=null;
+	var cxt=null;
+ 
+	var cells=null;
+	
+	var xmin=0;
+	var xmax=0;
+	var ymin=0;
+	var ymax=0;
+	
+	
+	var mapWidth=500;
+	var mapHeight=500;
+	
+	//地图分辨率
+	var resolution=0;
+	
+	//网格的数量
+ 	var colnum=0;
+ 	var rownum=0;
+	
+	
+ 	//画圆
+ 	function drawCircle(x,y)
+ 	{
+ 		cxt.fillStyle="#0000FF";
+ 		cxt.beginPath();
+ 		cxt.arc(x,y,2,0,Math.PI*2,true);
+ 		cxt.closePath();
+ 		cxt.fill();
+ 	}
+ 	
+ 	//画填充矩形
+ 	function drawFillRect(x,y,width,height,fillcolor)
+ 	{
+ 		cxt.fillStyle=fillcolor;
+ 		cxt.fillRect(x,y,width,height);
+ 	}
+ 	
+ 	//画填充矩形
+ 	function drawRect(x,y,width,height)
+ 	{
+ 		cxt.strokeStyle="#a0a0a0";
+ 		cxt.strokeRect(x,y,width,height);
+ 	}
+ 	
+ 	function clearRect()
+ 	{
+ 		ctx.clearRect(0,0,500,500);
+ 	}
+ 
+ 	function mapToScreen(mx,my)
+ 	{
+ 		var sx=(mx-xmin)/resolution;
+ 		var sy=(my-ymin)/resolution;
+ 		var obj=new Object();
+ 		obj.x=sx;
+ 		obj.y=sy;
+ 		
+ 		return obj;
+ 	}
+ 	
+ 	
+ 	//计算地图范围
+ 	function initMapExtent()
+ 	{
+ 		
+ 		xmin=data[0].coordx;
+ 		xmax=data[0].coordx;
+ 		ymin=data[0].coordy;
+ 		ymax=data[0].coordy;
+ 		for(var i=1;i<data.length;i++)
+ 		{
+			if(xmin>data[i].coordx) 			
+				xmin=data[i].coordx;
+			if(xmax<data[i].coordx) 			
+				xmax=data[i].coordx;
+			
+			if(ymin>data[i].coordy) 			
+				ymin=data[i].coordy;
+			if(ymax<data[i].coordy) 			
+				ymax=data[i].coordy;
+ 		}
+ 		
+ 		xmax=xmax+0.01;
+ 		ymax=ymax+0.01;
+ 		
+ 		
+ 		if((xmax-xmin)>(ymax-ymin))
+ 		{
+ 			resolution=(xmax-xmin)/500;
+ 			mapWidth=500;
+ 			mapHeight=Math.ceil((ymax-ymin)/resolution);
+ 		}
+ 		else
+ 		{
+ 			resolution=(ymax-ymin)/500;
+ 			mapHeight=500;
+ 			mapWidth=Math.ceil((xmax-xmin)/resolution);
+ 		}
+ 		
+ 		
+ 		colnum=Math.ceil(mapWidth/10);
+ 		rownum=Math.ceil(mapHeight/10);
+ 		
+ 		for(var x=0;x<rownum;x++)
+ 		{
+ 			for(var y=0;y<colnum;y++)
+ 			{
+ 				drawRect(y*10,x*10,10,10);
+ 			}
+ 		}
+ 	}
+ 	
+ 	
+ 	
+ 	
+ 	function drawTackerPoint()
+ 	{
+ 		for(var i=1;i<data.length;i++)
+ 		{
+ 			var x=data[i].coordx;
+ 			var y=data[i].coordy;
+ 			var sp=mapToScreen(x,y);
+ 			drawCircle(sp.x,sp.y);
+ 		}	
+ 	}
+ 	
+ 	function drawColorCell()
+ 	{
+ 		//计算网格中点的数量
+ 		//cells
+ 		var cells=new Array();
+ 		for(var r=0;r<rownum;r++)
+ 		{
+ 			var cell=new Array();
+ 			for(var c=0;c<colnum;c++)
+ 			{
+ 				cell.push(0);
+ 			}
+ 			cells.push(cell);
+ 		}
+ 		
+ 		var count=0;
+ 		for(var i=0;i<data.length;i++)
+ 		{
+ 			var x=data[i].coordx;
+ 			var y=data[i].coordy;
+ 			var sp=mapToScreen(x,y);
+ 			var c=parseInt(sp.x/10);
+ 			var r=parseInt(sp.y/10);
+ 			cells[r][c]=cells[r][c]+1;
+ 			count++;
+ 		}
+ 		console.log(count);
+ 		//画带颜色的网格
+ 		for(var r=0;r<rownum;r++)
+ 		{
+ 			for(var c=0;c<colnum;c++)
+ 			{
+ 				if(cells[r][c]==1)
+ 				{
+ 					drawFillRect(c*10,r*10,10,10,"#00FF00");
+ 				}
+ 				else if(cells[r][c]==2||cells[r][c]==3)
+ 				{
+ 					drawFillRect(c*10,r*10,10,10,"#00cc00");
+ 				}
+ 				else if(cells[r][c]==4||cells[r][c]==5)
+ 				{
+ 					drawFillRect(c*10,r*10,10,10,"#00aa00");
+ 				}
+ 				else if(cells[r][c]>=5&&cells[r][c]<=10)
+ 				{
+ 					drawFillRect(c*10,r*10,10,10,"#008800");
+ 				}
+ 				else if(cells[r][c]>0)
+ 				{
+ 					drawFillRect(c*10,r*10,10,10,"#006600");
+ 				}
+ 			}
+ 		}
+ 	}
+ 	
+
+	var c=document.getElementById("myCanvas");
+	var cxt=c.getContext("2d");
+
+	
+	
+	layui.use(['laydate','layer'], function()
+			{
+				$=layui.jquery;
+				
+				
+				$.post("./keeper/getkeeper2",{},function(res)
+				{
+					data=new Array();
+					for(var n=0;n<res.message.data.length;n++)
+					{
+						for(var m=0;m<res.message.data[n].tracks.length;m++)
+						{
+							if(res.message.data[n].tracks[m].valid)
+								data.push(res.message.data[n].tracks[m]);
+						}
+					}
+					initMapExtent();
+					drawColorCell();
+					drawTackerPoint();
+				});
+			});
+	
+	
+	
+	
+	
+	/*
+	var $;
+	var layer;
+	layui.use(['laydate','layer'], function()
+	{
+		$=layui.jquery;
+		layer=layui.layer;
+		var laydate = layui.laydate;
+
+		laydate.render({
+			    elem: '#keeperday'
+			  });
+		 
+	});
+	
+	function Querykeeper()
+	{
+		
+		var keeperday=$("#keeperday").val();
+		var keeperid=$("#keeperid").val();
+		
+		$.post("./keeper/getkeeper",{"keeperid":keeperid,"keeperday":keeperday},function(res){
+			var text=res.message.data;
+			$("#keeperinfo").val(text);
+			layer.msg("计算完成");
+		});
+		
+		
+		return false;
+	}
+	*/
+	
+	</script>
+
+</body>
+</html>

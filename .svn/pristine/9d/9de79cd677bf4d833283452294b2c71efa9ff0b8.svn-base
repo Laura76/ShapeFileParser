@@ -1,0 +1,9 @@
+package cvc.framework.entity;
+
+import java.util.List;
+
+public class Keeper {
+
+	public String keepersn;
+	public List<Coord> tracks;
+}

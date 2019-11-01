@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>my map</title>
+<link rel="stylesheet" href="./layui-master/css/layui.css"  media="all">
+<script type="text/javascript" src="./layui-master/layui.js" charset="utf-8"></script> 
+</head>
+<body>
+<canvas id="myCanvas" width="1200" height="700"></canvas>
+<script>
+layui.use(['form'], function()
+{
+var $=layui.jquery;
+$.ajax({
+    url:'/getPoints',
+    dataType:'json',
+    contentType: 'application/json;charset=utf-8',
+    timeout:2000,
+    success:function(data){
+        //————根据点开始画线
+        var polygonPints=data.message.data;
+    	var c=document.getElementById("myCanvas");
+    	var ctx=c.getContext("2d");
+    	//沿y轴翻转
+    	ctx.translate(0, c.height);
+    	ctx.scale(1, -1);
+    	//线条的颜色
+    	ctx.strokeStyle="#FF9933";
+    	//扩大图形-参数是长宽扩大的比例
+    	ctx.scale(16,16);
+    	ctx.translate(-70, -10);
+    	//线条的宽度像素
+    	ctx.lineWidth=0.05;
+    	ctx.beginPath();
+    	for(let i=0;i<polygonPints.length;i++){
+    		for(let j=0;j<polygonPints[i].length;j++){
+    			if(j==0)ctx.moveTo(polygonPints[i][j][0],polygonPints[i][j][1]);
+    			else ctx.lineTo(polygonPints[i][j][0],polygonPints[i][j][1]);
+    		}
+    	}
+    	ctx.stroke();
+    	ctx.closePath();
+    },
+    error:function () {
+       
+    }
+});
+
+
+});
+</script>
+</body>
+</html>

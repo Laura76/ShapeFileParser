@@ -1,0 +1,55 @@
+package cvc.framework.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cvc.framework.entity.Employees;
+import cvc.framework.result.RestMessage;
+import cvc.framework.result.RestResult;
+import cvc.framework.service.EmployeesService;
+
+@Controller
+@RequestMapping("/employees")
+public class EmployeesController {
+
+	
+	@Autowired
+	private EmployeesService service;
+	
+	@RequestMapping("/getAllEmployees")
+	@ResponseBody
+	public RestResult getAllEmployees()
+	{
+		RestResult result=new RestResult();
+		result.state=0;
+		result.error="";
+		result.message=new RestMessage();
+		result.message.data=service.getAllEmployees();
+		return result;
+	}
+	
+	@GetMapping("/Export")
+	public  void Export(HttpServletResponse response)
+	{
+	 	try 
+        {
+        	List<Employees> employees=service.getAllEmployees();
+        	service.exportDataToExcel(response, employees);
+        } 
+        catch (Exception e) 
+        {
+        }
+	}
+	
+	
+	
+	
+	
+}

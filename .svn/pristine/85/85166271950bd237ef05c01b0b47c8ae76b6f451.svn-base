@@ -1,0 +1,15 @@
+﻿package cvc.framework.utils;
+
+import java.util.UUID;
+
+public class GuidUtil {
+
+	
+	public static String NewGUID()
+	{
+		UUID uuid=UUID.randomUUID();
+		return uuid.toString().replace("-", "").toUpperCase();
+	}
+	
+	
+}

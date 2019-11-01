@@ -1,0 +1,327 @@
+package cvc.framework.utils;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServletRequest;
+
+public class FileUtil 
+{
+	
+	
+	//创建文件  
+    public static File createFile(String fileName) throws IOException  
+    {  
+        File file=new File(fileName);  
+        file.createNewFile();  
+        return file;  
+    }
+    
+    //路径处理
+    public static String pathAdapter(String path,String subpath)
+    {
+    	
+    	String separator="/";
+    	if(File.separator.equals("/"))
+    	{
+    		separator="\\";
+    	}
+    	String result=path.replace(separator, File.separator);
+    	
+    	if(subpath!=null&&!subpath.isEmpty())
+    		result=result+File.separator+subpath;
+    	
+    	return result;
+    }
+    
+    
+    //创建目录  
+    public static void createDir(String fileName) throws IOException  
+    {  
+    	String separator="\\\\";
+    	if(File.separator.equals("\\"))
+    	{
+    		separator="\\\\";
+    	}
+    	else
+    		separator=File.separator;
+    	
+    	String []directions=fileName.split(separator);
+
+    	String forlder="";
+    	for(int i=0;i<directions.length;i++)
+    	{
+    		if(directions[i].equals(""))
+    			continue;
+    		if(i>0)
+    			forlder=forlder+separator+directions[i];
+    		else
+    			forlder=directions[i];
+    			
+    		boolean res=isExist(forlder);
+    		if(!res)
+    		{
+    			File dir=new File(forlder);       
+    	        dir.mkdir();
+    		}
+    	}
+    }  
+    //判断文件是否存在  
+    public static boolean isExist(String fileName)  
+    {  
+        File file=new File(fileName);  
+        return file.exists();  
+    }  
+    
+    /**
+     * 删除指定的文件
+     */
+    public static void deleteFile(String filename) 
+    {
+    	 File file=new File(filename); 
+    	 file.delete();
+    }
+    public static void writeTextFile(String fileName,String message)
+    {
+        try
+        { 
+         FileOutputStream fout = new FileOutputStream(fileName,true);
+         byte [] bytes = message.getBytes(); 
+         fout.write(bytes); 
+          fout.close(); 
+         } 
+
+        catch(Exception e)
+        {
+        } 
+     }
+    
+    public static void writeTextFile(String fileName,String message,String charsetname)
+    {
+        try
+        { 
+         FileOutputStream fout = new FileOutputStream(fileName,true);
+         byte [] bytes = message.getBytes(charsetname); 
+         fout.write(bytes); 
+          fout.close(); 
+         } 
+
+        catch(Exception e)
+        {
+        } 
+     }
+    public static void writeBinaryFile(String fileName,byte[] bytes)
+    {
+        try
+        { 
+          FileOutputStream fout = new FileOutputStream(fileName,false);
+          fout.write(bytes); 
+          fout.close(); 
+         } 
+         catch(Exception e)
+         {
+         } 
+     }
+    
+    public static String ReadTextFile(String fileName)
+    {
+        try
+        { 
+        	FileInputStream fins = new FileInputStream(fileName);
+        	int byteCount=fins.available();
+        	byte []buffer=new byte[byteCount];
+        	fins.read(buffer, 0, byteCount);
+        	fins.close(); 
+        	return new String(buffer);
+        } 
+        catch(Exception e)
+        {
+        } 
+        return "";
+     }
+    
+    public static String ReadTextFile(String fileName,String charsetname)
+    {
+        try
+        { 
+        	FileInputStream fins = new FileInputStream(fileName);
+        	int byteCount=fins.available();
+        	byte []buffer=new byte[byteCount];
+        	fins.read(buffer, 0, byteCount);
+        	fins.close(); 
+        	return new String(buffer,charsetname);
+        } 
+        catch(Exception e)
+        {
+        } 
+        return "";
+     }
+    
+    
+    public static byte [] ReadBinaryFile(String fileName)
+    {
+        try
+        { 
+        	FileInputStream fins = new FileInputStream(fileName);
+        	int byteCount=fins.available();
+        	byte []buffer=new byte[byteCount];
+        	fins.read(buffer, 0, byteCount);
+        	fins.close(); 
+        	return buffer;
+        } 
+        catch(Exception e)
+        {
+        } 
+        return null;
+     }
+    
+    
+    public static void uploadFile(InputStream input,String path,boolean append)
+    {
+    	  try
+          { 
+    		  int count=input.available();
+    		  byte[] bytes = new byte[count];
+    		  int readCount = 0; // 已经成功读取的字节的个数
+    		  while (readCount < count) 
+    		  {
+    			  readCount += input.read(bytes, readCount, count - readCount);
+    		  }
+    		  FileOutputStream fout = new FileOutputStream(path,append);
+    		  fout.write(bytes); 
+    		  fout.close(); 
+          }
+          catch(Exception e)
+          {
+          } 
+    }
+    
+    
+     public static String getShortFileName(String fileName)
+     {
+    	 int index=fileName.lastIndexOf(File.separator);
+    	 if(index>=0)
+    	 {
+    		 return fileName.substring(index+1);
+    	 }
+    	 return fileName;
+     }
+    
+     public static String getFileExtension(String url)
+     {
+    	 int index=url.lastIndexOf(".");
+    	 if(index>0)
+    	 {
+    		 return url.substring(index);
+    	 }
+    	 return "";
+     }
+    
+     public static String getRoot(HttpServletRequest request)
+     {
+    	 String real=request.getServletContext().getRealPath("/");
+    	 String endstr=real.substring(real.length()-1);
+    	 if(!endstr.equals(File.separator))
+    	 {
+    		 real=real+File.separator;
+    	 }
+    	 return real;
+     }
+     
+     public static String ChangeExtension(String path,String extensionname)
+     {
+    	 int index=path.lastIndexOf(".");
+    	 if(index>0)
+    	 {
+    		 return path.substring(0, index)+extensionname;
+    	 }
+    	 return "";
+     }
+     
+     
+     public static void copyFile(File fromFile,File toFile) throws IOException
+     {
+        FileInputStream ins = new FileInputStream(fromFile);
+        FileOutputStream out = new FileOutputStream(toFile);
+        byte[] b = new byte[1024];
+        int n=0;
+        while((n=ins.read(b))!=-1)
+        {
+            out.write(b, 0, n);
+        }
+        ins.close();
+        out.close();
+    }
+     
+     public static void moveFile(File fromFile,File toFile) throws IOException
+     {
+        FileInputStream ins = new FileInputStream(fromFile);
+        FileOutputStream out = new FileOutputStream(toFile);
+        byte[] b = new byte[1024];
+        int n=0;
+        while((n=ins.read(b))!=-1)
+        {
+            out.write(b, 0, n);
+        }
+        ins.close();
+        out.close();
+        fromFile.delete();
+    }
+     
+    //遍历指定的目录
+    private  ArrayList<String> files=null;
+    public  ArrayList<String> getEnumFiles(String directory,String extentname,boolean ischildren)
+    {
+            if(files==null)
+                files=new  ArrayList<String>();
+            File f = new File(directory);
+            if(f.exists())
+            {
+                 File fa[] = f.listFiles(new FileFilter()
+                 {
+                        @Override
+                        public boolean accept(File pathname) 
+                        {
+                            // 判断文件名是目录 或 .xls 结尾
+                            if (pathname.isDirectory() || pathname.getName().toLowerCase().endsWith(extentname.toLowerCase())) {
+                                return true;
+                            }
+                            return false;
+                        }
+                 });
+                 
+                 for (int i = 0; i < fa.length; i++) 
+                 {
+                     File fs = fa[i];
+                     if(fs.isDirectory()) 
+                     {
+                         if(ischildren)
+                         {
+                            String directoryName=fs.getPath();
+                            getEnumFiles(directoryName,extentname,ischildren);
+                         }
+                     }
+                     else
+                     {
+                         String filename=fs.getPath();
+                         files.add(filename);
+                     }
+                 }
+            }
+            return files;
+    }
+     
+    
+    //得到目录分隔符
+    public static String getFileSeparator()
+    {
+    	return File.separator;
+    }
+     
+
+}

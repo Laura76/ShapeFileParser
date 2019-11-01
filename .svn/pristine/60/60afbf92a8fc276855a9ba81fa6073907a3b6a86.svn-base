@@ -1,0 +1,80 @@
+package cvc.framework.controller;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import cvc.framework.entity.Keeper;
+import cvc.framework.result.RestMessage;
+import cvc.framework.result.RestResult;
+import cvc.framework.service.KeeperService;
+
+@RestController
+@RequestMapping("keeper")
+public class KeeperController {
+
+	@Autowired
+	private KeeperService service;
+	
+	
+	@RequestMapping("getkeeper")
+	public RestResult getkeeper(@Param("keeperid") String keeperid,@Param("keeperday") String keeperday)
+	{
+		RestResult result=new RestResult();
+		
+		//1：读文件和排序
+		List<Keeper> keepers=service.getKeeperList("G:\\Data\\000.txt");
+		
+		//2:写文件
+		service.SaveKeeper(keepers,"G:\\Data\\001.txt");
+		
+		//3:标记飞点
+		service.makeValid(keepers);
+		
+		//4:保存标记后的信息
+		service.SaveKeeper(keepers,"G:\\Data\\002.txt");
+		
+		//5:查询巡检员
+		Keeper keeper=service.getKeeperByid(keepers,keeperid);
+		
+		String message="";
+		if(keeper==null)
+			message="该巡检员不存在";
+		else
+			message=service.getMileTime(keeper, keeperday);
+		
+		result.message=new RestMessage();
+		result.message.data=message;
+		return result;
+	}
+	
+	
+	@RequestMapping("getkeeper2")
+	public RestResult getkeeper2()
+	{
+		RestResult result=new RestResult();
+		
+		//1：读文件和排序
+		List<Keeper> keepers=service.getKeeperList("G:\\Data\\000.txt");
+		
+		//2:写文件
+		service.SaveKeeper(keepers,"G:\\Data\\001.txt");
+		
+		//3:标记飞点
+		service.makeValid(keepers);
+		
+		//4:保存标记后的信息
+		service.SaveKeeper(keepers,"G:\\Data\\002.txt");
+		result.message=new RestMessage();
+		result.message.data=keepers;
+		return result;
+	}
+	
+	
+	
+	
+	
+}

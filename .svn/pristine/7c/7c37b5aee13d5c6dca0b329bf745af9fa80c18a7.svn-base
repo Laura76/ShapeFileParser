@@ -1,0 +1,83 @@
+package cvc.framework.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cvc.framework.entity.Employees;
+import cvc.framework.mapper.IEmployeesMapper;
+import cvc.framework.utils.ExcelUtil;
+import cvc.framework.utils.StringUtil;
+import cvc.framework.utils.excel.ExcelColumn;
+
+@Service
+public class EmployeesService 
+{
+
+	@Autowired
+	private IEmployeesMapper mapper;
+	
+	public List<Employees> getAllEmployees()
+	{
+		return mapper.getAllEmployees();
+	}
+	
+	
+	public void exportDataToExcel(HttpServletResponse response, List<Employees> employees) 
+	{
+        try 
+        {
+        	List<ExcelColumn> columns=new ArrayList<ExcelColumn>();
+        	
+        	
+        	
+        	ExcelColumn column1=new ExcelColumn("companyname".toUpperCase(),"单位名称");
+        	columns.add(column1);
+        	
+        	ExcelColumn column2=new ExcelColumn("departcount".toUpperCase(),"部门数量");
+        	columns.add(column2);
+        	
+        	ExcelColumn column3=new ExcelColumn("emcount".toUpperCase(),"人员数量");
+        	columns.add(column3);
+        	
+            
+        	ExcelColumn column5=new ExcelColumn("maxsalery".toUpperCase(),"最高工资");
+        	columns.add(column5);
+        	
+        	
+        	 
+        	ExcelColumn column4=new ExcelColumn("avgemppostwages".toUpperCase(),"平均工资");
+        	columns.add(column4);
+        	
+        	
+        	 ExcelColumn column6=new ExcelColumn("empname".toUpperCase(),"姓名");
+        	 columns.add(column6);
+        	 
+			 ExcelColumn column7=new ExcelColumn("departmentname".toUpperCase(),"部门");
+			 columns.add(column7);
+			 
+			 ExcelColumn column8=new ExcelColumn("empgender".toUpperCase(),"性别");
+			 columns.add(column8);
+			 
+			 ExcelColumn column9=new ExcelColumn("age".toUpperCase(),"'年龄");
+			 columns.add(column9);
+			 
+			 ExcelColumn column10=new ExcelColumn("empemeducation".toUpperCase(),"学历");
+			 columns.add(column10);
+			 
+			 String filename=StringUtil.getDateString("yyyyMMdd");
+			 
+			 ExcelUtil.expoerDataExcel(response, filename+".xlsx", employees, columns);
+            
+        } catch (Exception e)
+        {
+            System.out.println("Exception: " + e.toString());
+        }
+    }
+	
+	
+}

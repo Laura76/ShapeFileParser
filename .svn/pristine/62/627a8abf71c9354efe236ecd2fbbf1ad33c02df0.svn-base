@@ -1,0 +1,86 @@
+package cvc.framework.entity;
+
+/**
+ *员工实体类 
+ */
+public class Employees 
+{
+
+	
+	private String COMPANYNAME;
+	private String DEPARTCOUNT;
+	private String EMCOUNT;
+	private String MAXSALERY;
+	private String AVGEMPPOSTWAGES;
+	private String EMPNAME;
+	private String EMPGENDER;
+	private String AGE;
+	private String EMPEMEDUCATION;
+	private String DEPARTMENTNAME;
+	public String getCOMPANYNAME() {
+		return COMPANYNAME;
+	}
+	public void setCOMPANYNAME(String cOMPANYNAME) {
+		COMPANYNAME = cOMPANYNAME;
+	}
+	public String getDEPARTCOUNT() {
+		return DEPARTCOUNT;
+	}
+	public void setDEPARTCOUNT(String dEPARTCOUNT) {
+		DEPARTCOUNT = dEPARTCOUNT;
+	}
+	public String getEMCOUNT() {
+		return EMCOUNT;
+	}
+	public void setEMCOUNT(String eMCOUNT) {
+		EMCOUNT = eMCOUNT;
+	}
+	public String getMAXSALERY() {
+		return MAXSALERY;
+	}
+	public void setMAXSALERY(String mAXSALERY) {
+		MAXSALERY = mAXSALERY;
+	}
+	public String getAVGEMPPOSTWAGES() {
+		return AVGEMPPOSTWAGES;
+	}
+	public void setAVGEMPPOSTWAGES(String aVGEMPPOSTWAGES) {
+		AVGEMPPOSTWAGES = aVGEMPPOSTWAGES;
+	}
+	public String getEMPNAME() {
+		return EMPNAME;
+	}
+	public void setEMPNAME(String eMPNAME) {
+		EMPNAME = eMPNAME;
+	}
+	public String getEMPGENDER() {
+		return EMPGENDER;
+	}
+	public void setEMPGENDER(String eMPGENDER) {
+		EMPGENDER = eMPGENDER;
+	}
+	public String getAGE() {
+		return AGE;
+	}
+	public void setAGE(String aGE) {
+		AGE = aGE;
+	}
+	public String getEMPEMEDUCATION() {
+		return EMPEMEDUCATION;
+	}
+	public void setEMPEMEDUCATION(String eMPEMEDUCATION) {
+		EMPEMEDUCATION = eMPEMEDUCATION;
+	}
+	public String getDEPARTMENTNAME() {
+		return DEPARTMENTNAME;
+	}
+	public void setDEPARTMENTNAME(String dEPARTMENTNAME) {
+		DEPARTMENTNAME = dEPARTMENTNAME;
+	}
+
+
+	
+
+	
+	
+}

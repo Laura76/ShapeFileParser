@@ -1,0 +1,7 @@
+package cvc.framework.result;
+
+public class FileRestMessage extends RestMessage
+{
+	public String sourceName;
+	public String descName;
+}

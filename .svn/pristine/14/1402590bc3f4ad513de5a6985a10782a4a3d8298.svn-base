@@ -1,0 +1,23 @@
+package cvc.framework.utils.excel;
+
+public class ExcelColumn
+{
+	public String name;		//字段名称
+	public String title;	//导出标题 
+	
+	public ExcelColumn()
+	{
+		
+		
+	}
+	
+	public ExcelColumn(String name, String title) 
+	{
+		super();
+		this.name = name;
+		this.title = title;
+	}
+	
+	
+	
+}

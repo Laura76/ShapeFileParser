@@ -1,0 +1,93 @@
+package cvc.framework.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.Update;
+
+import cvc.framework.entity.Employees;
+
+@Mapper
+public interface IEmployeesMapper 
+{
+
+	@Select("select ROWNUM AS ROWNO,m.*  from  \r\n" + 
+			"			  \r\n" + 
+			"			(  \r\n" + 
+			"			SELECT * FROM   \r\n" + 
+			"			(  \r\n" + 
+			"			SELECT A1.COMPANYID,  \r\n" + 
+			"			       A3.COMPANYNAME,  \r\n" + 
+			"			       (SELECT COUNT(0) FROM t_department B WHERE B.COMPANYID = A1.COMPANYID) DEPARTCOUNT,  \r\n" + 
+			"			        A1.EMCOUNT,  \r\n" + 
+			"			       trim(to_char(A1.MAXSALERY, '99999999999999.99')) as MAXSALERY,  \r\n" + 
+			"			       trim(to_char(A1.AVGEMPPOSTWAGES, '99999999999999.99')) as AVGEMPPOSTWAGES,  \r\n" + 
+			"			        \r\n" + 
+			"			       A2.EMPNAME,  \r\n" + 
+			"			       DECODE(A2.EMPGENDER, 0, '女', 1, '男') as EMPGENDER,  \r\n" + 
+			"			       A2.EMPBIRTHDAY,  \r\n" + 
+			"			       floor(MONTHS_BETWEEN(sysdate, A2.EMPBIRTHDAY) / 12) as AGE,  \r\n" + 
+			"			       decode(A2.EMPEMEDUCATION, 1, '大专', 2, '本科', 3, '硕士', 4, '博士') as  EMPEMEDUCATION,  \r\n" + 
+			"			       A2.DEPARTMENTNAME,  \r\n" + 
+			"			        row_number() over(partition by COMPANYID order by 1) RN  \r\n" + 
+			"			  FROM (SELECT C.COMPANYID,  \r\n" + 
+			"			                COUNT(0) AS EMCOUNT,  \r\n" + 
+			"			               round(MAX(EMPPOSTWAGES), 2) AS MAXSALERY,  \r\n" + 
+			"			               round(AVG(EMPPOSTWAGES), 2) AS AVGEMPPOSTWAGES  \r\n" + 
+			"			                 \r\n" + 
+			"			          FROM (SELECT A.EMPID,  \r\n" + 
+			"			                       A.EMPNAME,  \r\n" + 
+			"			                       A.EMPGENDER,  \r\n" + 
+			"			                       A.EMPBIRTHDAY,  \r\n" + 
+			"			                       A.DEPARTMENTID,  \r\n" + 
+			"			                       A.EMPEMEDUCATION,  \r\n" + 
+			"			                       B.COMPANYID,  \r\n" + 
+			"			                       A.EMPPOSTWAGES,  \r\n" + 
+			"			                       A.EMPESULTSWAGES,  \r\n" + 
+			"			                       B.DEPARTMENTNAME  \r\n" + 
+			"			                  FROM t_employees A  \r\n" + 
+			"			                  LEFT JOIN t_department B ON A.DEPARTMENTID = B.DEPARTMENTID) C  \r\n" + 
+			"			         GROUP BY C.COMPANYID  \r\n" + 
+			"			          \r\n" + 
+			"			        ) A1  \r\n" + 
+			"			  LEFT JOIN (  \r\n" + 
+			"			               \r\n" + 
+			"			             SELECT *  \r\n" + 
+			"			               FROM t_employees N1  \r\n" + 
+			"			               LEFT JOIN t_department N2 ON N1.DEPARTMENTID = N2.DEPARTMENTID  \r\n" + 
+			"			               \r\n" + 
+			"			             ) A2 ON A1.COMPANYID = A2.COMPANYID  \r\n" + 
+			"			                 AND A1.MAXSALERY = A2.EMPPOSTWAGES  \r\n" + 
+			"			  LEFT JOIN T_COMPANY A3 ON A1.COMPANYID = A3.COMPANYID   \r\n" + 
+			"			  )  \r\n" + 
+			"			  WHERE RN=1 order by maxsalery desc  \r\n" + 
+			"			  ) m\r\n" + 
+			"			\r\n" + 
+			"			")
+	@Results({
+		@Result(column="COMPANYNAME",property="COMPANYNAME"),
+		@Result(column="DEPARTCOUNT",property="DEPARTCOUNT"),
+		@Result(column="EMCOUNT",property="EMCOUNT"),
+		@Result(column="MAXSALERY",property="MAXSALERY"),
+		@Result(column="AVGEMPPOSTWAGES",property="AVGEMPPOSTWAGES"),
+		@Result(column="EMPNAME",property="EMPNAME"),
+		@Result(column="EMPGENDER",property="EMPGENDER"),
+		@Result(column="AGE",property="AGE"),
+		@Result(column="EMPEMEDUCATION",property="EMPEMEDUCATION"),
+		@Result(column="DEPARTMENTNAME",property="DEPARTMENTNAME")
+	})
+	public List<Employees> getAllEmployees();
+	
+	
+	
+	//@Select
+	//@Update
+	//@Insert
+	
+	
+}

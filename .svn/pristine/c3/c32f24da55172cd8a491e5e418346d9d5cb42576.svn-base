@@ -1,0 +1,10 @@
+package cvc.framework.utils.excel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExcelRow {
+
+	public List<String> cells=new ArrayList<String>();
+	
+}

@@ -1,0 +1,17 @@
+package cvc.framework.entity;
+
+import java.util.Date;
+
+public class Coord implements Comparable<Coord>
+{
+	public Date tracktime;
+	public double coordx;
+	public  double coordy;
+	public  boolean valid=true;	//是否是飞点 true:不是 false:是
+	@Override
+	public int compareTo(Coord o) 
+	{
+		return this.tracktime.compareTo(o.tracktime);
+	}
+	
+}

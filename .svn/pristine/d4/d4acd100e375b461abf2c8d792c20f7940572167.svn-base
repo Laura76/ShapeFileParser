@@ -1,0 +1,187 @@
+package cvc.framework.service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import cvc.framework.entity.Coord;
+import cvc.framework.entity.Keeper;
+import cvc.framework.utils.DateUtil;
+import cvc.framework.utils.FileUtil;
+import cvc.framework.utils.StringUtil;
+
+
+@Service
+public class KeeperService 
+{
+
+	//读文件，并且排序
+	public List<Keeper> getKeeperList(String filename)
+	{
+		List<Keeper> keepers=new ArrayList<Keeper>();
+		
+		if(!FileUtil.isExist(filename))
+		{
+			return keepers;
+		}
+		
+		String content=FileUtil.ReadTextFile(filename);
+		
+		
+		String []rows=content.split("\r\n");
+		for(int i=1;i<rows.length;i++)
+		{
+			String []cols=rows[i].split(",");
+			
+			String keepersn=cols[0];
+			
+			Coord coord=new Coord();
+			coord.tracktime=DateUtil.getDate(cols[1], "yyyy/MM/dd HH:mm");
+			coord.coordx=Double.parseDouble(cols[2]);
+			coord.coordy=Double.parseDouble(cols[3]);
+			
+			Keeper keeper=null;
+			for(int x=0;x<keepers.size();x++)
+			{
+				if(keepers.get(x).keepersn.equals(keepersn))
+				{
+					keeper=keepers.get(x);
+				}
+			}
+			if(keeper==null)
+			{
+				keeper=new Keeper();
+				keeper.keepersn=keepersn;
+				keeper.tracks=new ArrayList<Coord>();
+				keepers.add(keeper);
+			}
+			keeper.tracks.add(coord);
+		}
+		
+		
+		
+		for(int x=0;x<keepers.size();x++)
+		{
+			Collections.sort(keepers.get(x).tracks);
+		}
+		return keepers;
+	}
+	//保存文件
+	public void SaveKeeper(List<Keeper> keepers,String filename)
+	{
+		if(FileUtil.isExist(filename))
+			FileUtil.deleteFile(filename);
+
+		StringBuffer sb=new StringBuffer();
+		for(int i=0;i<keepers.size();i++)
+		{
+			Keeper keeper=keepers.get(i);
+			for(int j=0;j<keeper.tracks.size();j++)
+			{
+				String t=DateUtil.getString(keeper.tracks.get(j).tracktime,"yyyy/MM/dd HH:mm");
+				if(!keeper.tracks.get(j).valid)
+					sb.append("#ERR#");
+				String row=StringUtil.format("{0},{1},{2},{3},\r\n", keeper.keepersn,t,keeper.tracks.get(j).coordx,keeper.tracks.get(j).coordy);
+				sb.append(row);
+			}
+		}
+		FileUtil.writeTextFile(filename, sb.toString());
+	}
+	
+	
+	private double distance(Coord c1,Coord c2)
+	{
+		double dis=Math.sqrt((c1.coordx-c2.coordx)*(c1.coordx-c2.coordx)+(c1.coordy-c2.coordy)*(c1.coordy-c2.coordy));
+		return dis;
+	}
+	
+	//标记飞点
+	public void makeValid(List<Keeper> keepers)
+	{
+		for(int i=0;i<keepers.size();i++)
+		{
+			Keeper keeper=keepers.get(i);
+			
+			for(int j=1;j<keeper.tracks.size()-1;j++)
+			{
+				Coord c1=keeper.tracks.get(j-1);
+				Coord c2=keeper.tracks.get(j);
+				Coord c3=keeper.tracks.get(j+1);
+				if((c2.tracktime.getTime()-c1.tracktime.getTime())/1000/60>1)
+					continue;
+				if((c3.tracktime.getTime()-c2.tracktime.getTime())/1000/60>1)
+					continue;
+				double d1=distance(c2,c1);
+				double d2=distance(c3,c2);
+				if(d1>5000&&d2>5000)
+					keeper.tracks.get(j).valid=false;
+			}
+		}
+	}
+	
+	
+	
+	//得到巡检员
+	public Keeper getKeeperByid(List<Keeper> keepers,String keeperid)
+	{
+		for(int n=0;n<keepers.size();n++)
+		{
+			if(keepers.get(n).keepersn.equals(keeperid))
+				return keepers.get(n);
+		}
+		return null;
+	}
+	
+	//计算里程和时间
+	public String getMileTime(Keeper keeper,String keeperday)
+	{
+		
+		Date d1=DateUtil.getDate(keeperday+" 00:00:00","yyyy-MM-dd HH:mm:ss");
+		Date d2=DateUtil.getDate(keeperday+" 07:00:00","yyyy-MM-dd HH:mm:ss");
+
+		Date d3=DateUtil.getDate(keeperday+" 18:00:00","yyyy-MM-dd HH:mm:ss");
+		Date d4=DateUtil.getDate(keeperday+" 23:59:59","yyyy-MM-dd HH:mm:ss");
+		
+		
+		
+		double distanceCunt=0;
+		double timeCunt=0;
+		
+		Coord lastcoord=null;
+		for(int n=0;n<keeper.tracks.size();n++)
+		{
+			
+			Coord c=keeper.tracks.get(n);
+			if(!c.valid)
+				continue;
+			
+			
+			if((c.tracktime.compareTo(d1)>=0&&c.tracktime.compareTo(d2)<0)||(c.tracktime.compareTo(d3)>=0&&c.tracktime.compareTo(d4)<=0))
+			{
+				
+				if(lastcoord==null)
+				{
+					lastcoord=c;
+					continue;
+				}
+				
+				double d=distance(c,lastcoord);
+				double t=(c.tracktime.getTime()-lastcoord.tracktime.getTime())/1000/60;
+				
+				System.out.println(DateUtil.getString(c.tracktime, "yyyy-MM-dd HH:mm")+",距离:"+d+",时间:"+t);
+			
+				lastcoord=c;
+				distanceCunt=distanceCunt+d;
+				timeCunt=timeCunt+t;
+			}
+			else
+				lastcoord=null;
+		}
+		return StringUtil.format("距离:{0}米,时间:{1}分钟", (int)distanceCunt, (int)timeCunt);
+	}
+	
+	
+}

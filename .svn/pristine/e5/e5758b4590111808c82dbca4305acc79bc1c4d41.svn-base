@@ -1,0 +1,32 @@
+package cvc.framework.entity;
+
+public class dbfile {
+
+	/*
+	int  filetype;
+	int	  字段数
+	[
+	 {
+		 byte 字段名长度
+		 byte []字段名称
+		 byte 字段类型
+		 int  字段长度
+	 },
+	 {
+		 
+	 }
+	 ]
+	 //int float double byte date string
+	[
+	 {
+		 int 
+	 }
+	 {
+		int 内容长度 
+	  	255
+	 }
+	 //
+	 ]
+	*/
+}
+

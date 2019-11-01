@@ -1,0 +1,92 @@
+﻿package cvc.framework.utils;
+
+import java.security.SecureRandom;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+
+public class DesEncrypt 
+{
+	
+	
+    /// 加密
+    public static String Encrypt(String Text)
+    {
+    	String key = "citygis";
+        return Encrypt(Text, key);
+    }
+    
+    public static final String CIPHER_ALGORITHM_ECB = "DES/ECB/PKCS5Padding";  
+    public static final String CIPHER_ALGORITHM_CBC = "DES/CBC/PKCS5Padding";  
+    public static String Encrypt(String Text, String sKey)
+    {
+    	String md5_result = "";
+    	DESKeySpec desKey=null;
+		try 
+		{
+			SecureRandom sc=new SecureRandom();
+			
+			String key=Md5Encrypt.Encrypt(sKey, 32);
+			String newkey=key.subSequence(0, 8).toString();
+			desKey = new DESKeySpec(newkey.getBytes("GBK"));
+	    	SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+	    	SecretKey securekey = keyFactory.generateSecret(desKey);
+	    	Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_CBC);
+	    	cipher.init(Cipher.ENCRYPT_MODE, securekey,new IvParameterSpec(newkey.getBytes("GBK")),sc);
+	    	byte []bytes =cipher.doFinal(Text.getBytes("GBK"));
+	    	for (int i = 0; i < bytes.length; i++)
+	        {
+	            md5_result += String.format("%02X", bytes[i]);	//X2
+	        }
+		} 
+		catch (Exception e) 
+		{
+		}
+    	return md5_result;
+    }
+    
+    /// 解密
+    public static String Decrypt(String Text)
+    {
+    	String key = "citygis";
+        return Decrypt(Text, key);
+    }
+    
+    public static String Decrypt(String text, String sKey)
+    {
+    	try 
+    	{
+    		SecureRandom sc=new SecureRandom();
+    		String key=Md5Encrypt.Encrypt(sKey, 32);
+			String newkey=key.subSequence(0, 8).toString();
+	    	DESKeySpec desKey = new DESKeySpec(newkey.getBytes("GBK"));
+	    	SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+	    	SecretKey securekey = keyFactory.generateSecret(desKey);
+	    	Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_CBC);
+	    	cipher.init(Cipher.DECRYPT_MODE, securekey,new IvParameterSpec(newkey.getBytes("GBK")),sc);
+	    	
+	    	int len;
+            len = text.length() / 2;
+            byte[] inputByteArray = new byte[len];
+            int x, i;
+            for (x = 0; x < len; x++)
+            {
+            	String c=text.substring(x * 2,x * 2+2);
+                i=Integer.parseInt(c, 16);
+                inputByteArray[x] = (byte)i;
+            }
+            // 真正开始解密操作
+	    	byte []bytes =cipher.doFinal(inputByteArray);
+	    	return new String(bytes);
+    	}
+    	catch(Exception ex)
+    	{
+    		System.out.println(ex.getMessage());
+    	}
+    	return "";
+    }
+
+}

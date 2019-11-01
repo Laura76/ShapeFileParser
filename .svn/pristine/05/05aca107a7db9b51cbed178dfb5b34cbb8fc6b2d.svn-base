@@ -1,0 +1,14 @@
+package cvc.framework.result;
+
+/**
+ * 
+ **/
+public class PageRestMessage extends RestMessage
+{
+	public int  	pageindex;
+	public int  	pagesize;
+	public long		pageNum;	//页数
+	public long  	count;		//记录数
+	
+	
+}
